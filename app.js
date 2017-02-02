@@ -2,21 +2,38 @@ import Koa from 'koa'
 import Views from 'koa-views'
 import Router from 'koa-router'
 import BodyParser from 'koa-bodyparser'
+import session from "koa-session2"
 import Process from 'child_process'
 
-const os = process.platform;
-const spawn = Process.spawn;
+const os = process.platform
+const spawn = Process.spawn
 
 const app = new Koa()
-const router = new Router();
-// app.use(async (ctx, next) => {
-//  TODO: check login info
-//     await next()
-//
-// })
 
+const router = new Router()
 app.use(Views(__dirname + '/views', { map: {html: 'nunjucks' }}))
 app.use(BodyParser())
+app.use(session({
+  key: "SESSIONID",   //default "koa:sess"
+}))
+app.use(async (ctx, next) => {
+
+  let path = ctx.request.url
+  if(path === '/' || path === '/login'){
+    await next()
+  }else{
+    // TODO: check login info
+    let user = ctx.session.user
+    if(!user){
+      ctx.redirect('/login')
+    }else{
+      await next()
+    }
+  }
+
+})
+
+
 
 router.get('/', async function(ctx, next){
   await ctx.render('login.html')
@@ -26,7 +43,15 @@ router.get('/login', async function(ctx, next){
 })
 
 router.post('/login', async function(ctx, next){
-  await ctx.redirect('/main')
+  //check pass
+  let loginInfo = ctx.request.body
+  ctx.response.type = 'text/json'
+  if(loginInfo.name === 'admin' && loginInfo.pass === '741235896'){
+    ctx.session.user = loginInfo
+    ctx.response.body = {code : 0}
+  }else{
+    ctx.response.body = {code : -99, error: 'User Or Pass Error '}
+  }
 })
 
 router.get('/main', async function(ctx, next){
@@ -62,16 +87,14 @@ async function runCommand( command ){
   // 捕获标准输出并将其打印到控制台
   return new Promise((resolve, reject) => {
     command.stdout.on('data', function (data) {
-      console.log('on out')
       resolve( {data: data.toString() })
     })
     command.stderr.on('data', function (data) {
-      console.log('on err')
       reject( {data: data.toString() })
     })
     command.on('exit', function (code, signal) {
       if(code === 0){
-        console.log('子进程已退出，代码：' + code)
+        //exit normal
       }else{
         console.log(signal)
       }
