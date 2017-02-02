@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CI Web Console App</title>
+    <meta charset="UTF-8"/>
+    <link href="//cdn.bootcss.com/flat-ui/2.3.0/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/flat-ui/2.3.0/css/flat-ui.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <style>
+      html, body{
+        background-color: #1abc9c;
+      }
+      #container {
+        width:680px;
+        font: 18px "Lucida Grande", Helvetica, Arial, sans-serif;
+      }
+      @media screen and (max-device-width:400px) {
+        #container {
+          width:380px;
+          font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+        }
+        h1{font-size:1.6em;}
+      }
+      a {
+        color: #00B7FF;
+      }
+    </style>
+  </head>
+  <body ng-app="ci-app">
+    <div id="container" class="center-block">
+      <h1>CI Web Console App</h1>
+      <div class="panel panel-default" ng-controller="ciCtrl">
+        <div class="panel-heading">
+          <i class="fa fa-list"></i> Commands
+        </div>
+        <div class="panel-body">
+          <div class="form-horizontal">
+            <div class="form-group">
+                <label for="command-text" class="col-sm-2 control-label">Command</label>
+                <div class="col-sm-10">
+                    <textarea name="commmand" rows="3" class="form-control" id="command-text" placeholder="ex: yfci build"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-primary" id="command-execute">Execute</button>
+                </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success hide" role="alert" id="result">
+            <pre></pre>
+          </div>
+          <div class="alert alert-danger hide" role="alert" id="error">
+            <pre></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="//cdn.bootcss.com/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script>
+      $().ready(function(){
+        var $resultContent = $("#result pre");
+        var $errorContent = $("#error pre");
+        $("#command-execute").click(function(){
+          $.ajax({
+            url:'/execute',
+            type:'POST',
+            contentType:"application/json;charset=UTF-8",
+            dataType: 'json',
+            data:JSON.stringify({"command":$('#command-text').val()}),
+            success: function(data){
+              console.log(data)
+              $resultContent.text(data.data);
+              $("#result").removeClass('hide');
+            },
+            error: function(err){
+              $errorContent.html(JSON.stringify(err.data));
+              $("#error").removeClass('hide');
+            }
+          });
+        })
+      });
+    </script>
+  </body>
+</html>
