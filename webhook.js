@@ -13,7 +13,7 @@ export default async function ( upstream, args ){
         break;
       case 'coding':
         let repName = args.repository.name;
-        await result = runCommand('yfcode pull ' + repName)
+        let result = await runCommand('yfcode pull ' + repName)
         resolve('success : ' + result)
         break;
       default:
