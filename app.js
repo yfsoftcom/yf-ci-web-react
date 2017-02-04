@@ -2,21 +2,9 @@ import Koa from 'koa'
 import Views from 'koa-views'
 import Router from 'koa-router'
 import BodyParser from 'koa-bodyparser'
-import session from "koa-session2"
-import Process from 'child_process'
-
-const os = process.platform
-
-const options = {
-    encoding: 'utf8',
-    timeout: 0,
-    maxBuffer: 200 * 1024,
-    killSignal: 'SIGTERM',
-    setsid: false,
-    cwd: null,
-    env: null
-};
-
+import session from 'koa-session2'
+import runCommand from './command.js'
+import webhook from './webhook.js'
 const app = new Koa()
 
 const router = new Router()
@@ -25,10 +13,11 @@ app.use(BodyParser())
 app.use(session({
   key: "SESSIONID",   //default "koa:sess"
 }))
+
 app.use(async (ctx, next) => {
 
   let path = ctx.request.url
-  if(path === '/' || path === '/login'){
+  if(path === '/' || path === '/login' || path.indexOf('/webhook') === 0){
     await next()
   }else{
     // TODO: check login info
@@ -41,8 +30,6 @@ app.use(async (ctx, next) => {
   }
 
 })
-
-
 
 router.get('/', async function(ctx, next){
   await ctx.render('login.html')
@@ -82,20 +69,10 @@ router.post('/execute', async function(ctx, next){
   }
 })
 
-
-async function runCommand( command ){
-  // 捕获标准输出并将其打印到控制台
-  return new Promise((resolve, reject) => {
-    Process.exec(command, options, function(e, stdout, stderr){
-      if(e){
-        console.log(e)
-        reject( {data: stderr })
-      }else{
-        resolve( {data: stdout })
-      }
-    })
-  })
-}
+router.post('/webhook/:upstream', async function(ctx, next){
+  let result = await webhook(ctx.params.upstream, ctx.request.body)
+  ctx.response.body = result
+})
 
 
 app
