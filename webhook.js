@@ -5,6 +5,7 @@ export default async function ( upstream, args ){
   return new Promise((resolve, reject) => {
     switch(upstream){
       case 'github':
+      
         resolve('success');
         break;
     }
