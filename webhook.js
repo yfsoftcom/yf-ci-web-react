@@ -5,13 +5,14 @@ const reps = {
 }
 export default async function ( upstream, args ){
   let result = 'nothing'
+  let repName;
   switch(upstream){
     case 'github':
-      let repName = args.repository.name;
+      repName = args.repository.name;
       result = await runCommand('yfcode pull ' + reps[repName])
       break;
     case 'coding':
-      let repName = args.repository.name;
+      repName = args.repository.name;
       result = await runCommand('yfcode pull ' + repName)
       break;
     default:
