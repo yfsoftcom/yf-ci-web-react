@@ -3,21 +3,23 @@ import runCommand from './command.js'
 const reps = {
   'yf-ci-web-react': 'www.xinyangjlm.com',
 }
-export default async function ( upstream, args ){
+export default async function ( upstream, project, args ){
   let result = 'nothing'
-  let repName;
+  let repName
+  console.log(project)
   switch(upstream){
     case 'github':
-      repName = args.repository.name;
-      result = await runCommand('yfcode pull ' + reps[repName])
+      repName = project
+      result = await runCommand('yfcode pull ' + repName)
       break;
     case 'coding':
-      repName = args.repository.name;
+      repName = project
       result = await runCommand('yfcode pull ' + repName)
       break;
     default:
       result = 'unknow upstream'
   }
+
   return new Promise((resolve, reject) => {
     resolve('success : ' + result)
   })
