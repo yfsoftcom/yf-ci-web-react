@@ -12,8 +12,9 @@ export default async function ( upstream, args ){
         resolve('success')
         break;
       case 'coding':
-        console.log(args)
-        resolve('test')
+        let repName = args.repository.name;
+        await result = runCommand('yfcode pull ' + repName)
+        resolve('success : ' + result)
         break;
       default:
         resolve('unknow upstream')
