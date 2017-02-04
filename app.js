@@ -6,7 +6,16 @@ import session from "koa-session2"
 import Process from 'child_process'
 
 const os = process.platform
-const spawn = Process.spawn
+
+const options = {
+    encoding: 'utf8',
+    timeout: 0,
+    maxBuffer: 200 * 1024,
+    killSignal: 'SIGTERM',
+    setsid: false,
+    cwd: null,
+    env: null
+};
 
 const app = new Koa()
 
@@ -63,19 +72,10 @@ router.post('/execute', async function(ctx, next){
   console.log('execute：' + args.command)
 
   let commandText = args.command
-  let arr = commandText.split(' ')
-  let c = arr[0]
-  arr.splice(0, 1)
-  let command = {}
   ctx.response.type = 'text/json'
   ctx.response.status = 200
   try{
-    if(os === 'win32'){
-      command = spawn('cmd.exe', ['\s', '\c',c,'D:'])
-    }else{
-      command = spawn(c,arr)
-    }
-    ctx.response.body = await runCommand(command);
+    ctx.response.body = await runCommand(commandText);
   }catch(e){
     console.log(e)
     ctx.response.body = e
@@ -86,19 +86,13 @@ router.post('/execute', async function(ctx, next){
 async function runCommand( command ){
   // 捕获标准输出并将其打印到控制台
   return new Promise((resolve, reject) => {
-    command.stdout.on('data', function (data) {
-      resolve( {data: data.toString() })
-    })
-    command.stderr.on('data', function (data) {
-      reject( {data: data.toString() })
-    })
-    command.on('exit', function (code, signal) {
-      if(code === 0){
-        //exit normal
+    Process.exec(command, options, function(e, stdout, stderr){
+      if(e){
+        console.log(e)
+        reject( {data: stderr })
       }else{
-        console.log(signal)
+        resolve( {data: stdout })
       }
-
     })
   })
 }
