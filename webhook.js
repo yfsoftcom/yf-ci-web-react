@@ -6,6 +6,8 @@ export default async function ( upstream, args ){
     switch(upstream){
       case 'github':
         console.log(args.repository.name)
+        let repName = args.repository.name;
+        // runCommand('yfcode pull ' + repName)
         resolve('success');
         break;
       default:
