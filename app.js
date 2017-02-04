@@ -70,8 +70,7 @@ router.post('/execute', async function(ctx, next){
 })
 
 router.post('/webhook/:upstream', async function(ctx, next){
-  let result = await webhook(ctx.params.upstream, ctx.request.body)
-  ctx.response.body = result
+  ctx.response.body = await webhook(ctx.params.upstream, ctx.request.body)
 })
 
 
