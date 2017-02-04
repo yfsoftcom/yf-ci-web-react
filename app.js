@@ -87,13 +87,9 @@ async function runCommand( command ){
   // 捕获标准输出并将其打印到控制台
   return new Promise((resolve, reject) => {
     command.stdout.on('data', function (data) {
-      console.log('ok')
-      console.log(data)
       resolve( {data: data.toString() })
     })
     command.stderr.on('data', function (data) {
-      console.log('error')
-      console.log(data)
       reject( {data: data.toString() })
     })
     command.on('exit', function (code, signal) {
