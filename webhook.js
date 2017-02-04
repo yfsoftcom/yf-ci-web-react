@@ -2,7 +2,6 @@ import runCommand from './command.js'
 
 const reps = {
   'yf-ci-web-react': 'www.xinyangjlm.com',
-  '':
 }
 export default async function ( upstream, args ){
   return new Promise((resolve, reject) => {
