@@ -69,8 +69,8 @@ router.post('/execute', async function(ctx, next){
   }
 })
 
-router.post('/webhook/:upstream/:project', async function(ctx, next){
-  ctx.response.body = await webhook(ctx.params.upstream, ctx.params.project, ctx.request.body)
+router.post('/webhook/:upstream/:type/:project', async function(ctx, next){
+  ctx.response.body = await webhook(ctx.params, ctx.request.body)
 })
 
 
